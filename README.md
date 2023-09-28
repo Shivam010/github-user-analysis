@@ -10,7 +10,13 @@ This will result in much more consumption of Github's rate limit - `5000 request
 
 But on using an efficient [Graphql query](./query.gql), we can obtained all the equivalent information in just a single call, which means the effectively, we can analyse `~5000` users per hour.
 
-## Sample example
+## How to run? and Sample example
+
+Add your `GITHUB_ACCESS_TOKEN` in environment variable or in the `.env` file
+
+Run `functions-framework-python --target=fetch_github_data --debug` and visit `http://127.0.0.1:8080/?username=<username>` replace `<username>`.
+
+A truncated output of my username is provided below:
 
 ```json
 {
@@ -55,7 +61,7 @@ But on using an efficient [Graphql query](./query.gql), we can obtained all the 
 		"totalSponsors": 0,
 		"totalSponsorings": 0,
 		"totalSponsorshipAmountAsSponsorInCents": null,
-        
+
 		"oneYearContributionsStats": {
 			"hasAnyContributions": true,
 			"popularIssueContribution": {},
@@ -75,7 +81,7 @@ But on using an efficient [Graphql query](./query.gql), we can obtained all the 
 			"totalRepositoriesWithContributedPullRequests": 2,
 			"totalRepositoryContributions": 3
 		},
-        
+
 		"recentlyContributedRepositories": [
 			{
 				"forkCount": 48,
@@ -98,7 +104,7 @@ But on using an efficient [Graphql query](./query.gql), we can obtained all the 
 			}
 			// ... other
 		],
-        
+
 		"topRepositories": [
 			{
 				"forkCount": 0,
