@@ -106,6 +106,8 @@ def format_user_response(res):
         "startedAt": res["oneYearContributionsStats"]["startedAt"],
         "endedAt": res["oneYearContributionsStats"]["endedAt"],
     }
+    del usr["oneYearContributionsStats"]["startedAt"]
+    del usr["oneYearContributionsStats"]["endedAt"]
 
     # total stars received for repositories
     usr["totalStarredRepositories"] = res["starredRepositories"]["totalCount"]
