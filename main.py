@@ -1,110 +1,135 @@
 import functions_framework
-import json
 import requests
+import flask
+from dotenv import load_dotenv
 from os import getenv
 
-token = getenv("GITHUB_ACCESS_TOKEN")
+# load envs from .env file
+load_dotenv()
 
-# almost ~34 api calls 
-@functions_framework.http
-def fetch_github_data(request):
+# GitHub GraphQL API endpoint
+GITHUB_GRAPHQL_API_ENDPOINT = "https://api.github.com/graphql"
+
+
+# GitHub personal access token for authentication
+GITHUB_ACCESS_TOKEN = getenv("GITHUB_ACCESS_TOKEN")
+
+
+# Function to query GitHub GraphQL API
+def query_github_api(username: str):
+    print(GITHUB_ACCESS_TOKEN)
+    headers = {
+        "Authorization": f"Bearer {GITHUB_ACCESS_TOKEN}",
+        "Content-Type": "application/json",
+    }
+
+    resp = requests.post(
+        GITHUB_GRAPHQL_API_ENDPOINT,
+        headers=headers,
+        json={
+            "query": GRAPHQL_QUERY,
+            "variables": {
+                "username": username.strip(),
+            },
+        },
+    )
+
+    if resp.status_code != 200:
+        return {
+            "statusCode": 500,
+            "error": "500 - Something went wrong",
+        }
+
     try:
-        request_json = request.get_json(silent=True)
-        username = request_json["username"]
-        headers = {
-            "Authorization": f"token {token}",
-            "Accept": "application/vnd.github+json",
+        body = resp.json()
+    except:
+        return {
+            "statusCode": 500,
+            "error": "500 - Something went wrong",
         }
 
-        user_response = requests.get(
-            f"https://api.github.com/users/{username}", headers=headers
-        )
-        user_response.raise_for_status()
-        user_data = user_response.json()
+    usr = body["data"]["user"]
+    usr = format_user_response(usr)
+    return {
+        "data": usr,
+        "statusCode": 200,
+    }
 
-        repos_response = requests.get(user_data["repos_url"], headers=headers)
-        repos_response.raise_for_status()
-        repos_data = repos_response.json()
 
-        commits_response = requests.get(
-            f"https://api.github.com/search/commits?q=author:{username}&per_page=1",
-            headers={**headers, "Accept": "application/vnd.github.cloak-preview"},
-        )
-        commits_response.raise_for_status()
-        commits_data = commits_response.json()
-        commits = commits_data["total_count"]
+# Formats the github api response, based on the graphql query
+def format_user_response(res):
+    usr = {
+        "bio": res["bio"],
+        "name": res["name"],
+        "username": res["username"],
+        "createdAt": res["createdAt"],
+        "updatedAt": res["updatedAt"],
+        "location": res["location"],
+        "twitterUsername": res["twitterUsername"],
+        "socialAccounts": res["socialAccounts"]["nodes"],
+        # other stats
+        "totalRepositories": res["repositories"]["totalCount"],
+        "followers": res["followers"]["totalCount"],
+        "following": res["following"]["totalCount"],
+    }
 
-        stars_response = requests.get(
-            f"https://api.github.com/users/{username}/starred", headers=headers
-        )
-        stars_response.raise_for_status()
-        stars_data = stars_response.json()
-        starred_repos = len(stars_data)
+    return usr
 
-        events_response = requests.get(
-            f"https://api.github.com/users/{username}/events", headers=headers
-        )
-        events_response.raise_for_status()
-        events_data = events_response.json()
-        event_types = [event["type"] for event in events_data]
-        event_count = len(event_types)
-        event_breakdown = {}
 
-        for event_type in event_types:
-            if event_type not in event_breakdown:
-                event_breakdown[event_type] = 0
-            event_breakdown[event_type] += 1
+@functions_framework.http
+def fetch_github_data(req: flask.Request):
+    if req.method != "GET":  ## TODO: change it to POST
+        return {
+            "statusCode": 405,
+            "error": "method not allowed",
+        }, 405
 
-        for event_type, count in event_breakdown.items():
-            event_breakdown[event_type] = round(count / event_count * 100, 2)
+    body = req.get_json(silent=True)
+    username = req.args.get("username")  ## TODO: change it back to post
+    # username = body["username"]
 
-        repo_info = []
-        for repo in repos_data:
-            repo_name = repo["name"]
-            repo_stars = repo["stargazers_count"]
-            repo_forks = repo["forks_count"]
-            repo_url = repo["html_url"]
-            print(repo_url)
-            languages_response = requests.get(
-                f"https://api.github.com/repos/{username}/{repo_name}/languages",
-                headers=headers,
-            )
-            languages_response.raise_for_status()
-            languages_data = languages_response.json()
+    resp = query_github_api(username)
+    return resp, resp["statusCode"]
 
-            repo_info.append(
-                {
-                    "name": repo_name,
-                    "stars": repo_stars,
-                    "forks": repo_forks,
-                    "url": repo_url,
-                    "languages": languages_data,
-                }
-            )
 
-        user_info = {
-            "username": username,
-            "created_at": user_data.get("created_at"),
-            "updated_at": user_data.get("updated_at"),
-            "total_private_repos": user_data.get("total_private_repos"),
-            "followers": user_data.get("followers"),
-            "following": user_data.get("following"),
-            "owned_private_repos": user_data.get("owned_private_repos"),
-            "company": user_data.get("company"),
-            "blog": user_data.get("blog"),
-            "location": user_data.get("location"),
-            "bio": user_data.get("bio"),
-            "twitter_username": user_data.get("twitter_username"),
-            "starred_repos": starred_repos,
-            "event_breakdown": event_breakdown,
-            "repositories": repo_info,
-            "total_commits": commits,
-        }
+# Github Graphql Query used to obtained data
+GRAPHQL_QUERY = """
+query {
+	rateLimit {
+		cost
+		limit
+		nodeCount
+		remaining
+	}
 
-        return {"user_info": user_info}
+	user(login: "Shivam010") {
+		name
+		twitterUsername
+		username: login
+		createdAt
+		updatedAt
+		location
 
-    except requests.exceptions.HTTPError as _:
-        return {"err": "500: Internal Server Error"}
+		bio
+		socialAccounts(first: 5) {
+			nodes {
+				displayName
+				provider
+				url
+			}
+			totalCount
+		}
 
-    except Exception as _:
-        return {"err": "500: Internal Server Error"}
+		followers(first: 1) {
+			totalCount
+		}
+		following(first: 1) {
+			totalCount
+		}
+
+		repositories {
+			totalCount
+		}
+	} # user end
+}
+"""

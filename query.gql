@@ -1,0 +1,41 @@
+# Welcome to Altair GraphQL Client.
+# You can send your request using CmdOrCtrl + Enter.
+
+query {
+	rateLimit {
+		cost
+		limit
+		nodeCount
+		remaining
+	}
+
+	user(login: "Shivam010") {
+		name
+		twitterUsername
+		username: login
+		createdAt
+		updatedAt
+		location
+
+		bio
+		socialAccounts(first: 5) {
+			nodes {
+				displayName
+				provider
+				url
+			}
+			totalCount
+		}
+
+		followers(first: 1) {
+			totalCount
+		}
+		following(first: 1) {
+			totalCount
+		}
+
+		repositories {
+			totalCount
+		}
+	} # user end
+}
