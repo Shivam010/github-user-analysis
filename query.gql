@@ -1,15 +1,17 @@
 # Welcome to Altair GraphQL Client.
 # You can send your request using CmdOrCtrl + Enter.
 
-query {
+query ($username: String!) {
 	rateLimit {
 		cost
 		limit
 		nodeCount
 		remaining
+		resetAt
+		used
 	}
 
-	user(login: "Shivam010") {
+	user(login: $username) {
 		name
 		twitterUsername
 		username: login
@@ -27,15 +29,118 @@ query {
 			totalCount
 		}
 
-		followers(first: 1) {
+		isDeveloperProgramMember
+
+		# contributions stats in past 1 years
+		contributionsCollection {
+			startedAt
+			endedAt
+
+			restrictedContributionsCount
+
+			totalIssueContributions
+			totalCommitContributions
+			totalPullRequestContributions
+			totalPullRequestReviewContributions
+
+			totalRepositoryContributions
+			totalRepositoriesWithContributedIssues
+			totalRepositoriesWithContributedCommits
+			totalRepositoriesWithContributedPullRequests
+			totalRepositoriesWithContributedPullRequestReviews
+
+			popularIssueContribution {
+				isRestricted
+				issue {
+					title
+					# bodyText
+					createdAt
+					closedAt
+					url
+				}
+			}
+
+			popularPullRequestContribution {
+				isRestricted
+				pullRequest {
+					url
+					title
+					# bodyText
+					createdAt
+					changedFiles
+					reviewDecision
+				}
+			}
+
+			hasAnyContributions
+		}
+
+		# top repositories user has contributed to in any way
+		topRepositories(
+			first: 50
+			orderBy: { direction: DESC, field: STARGAZERS }
+		) {
+			nodes {
+				...RepoDetails
+			}
+		}
+
+		followers {
 			totalCount
 		}
-		following(first: 1) {
+		following {
 			totalCount
 		}
 
-		repositories {
+		# number of repositories the user has starred
+		starredRepositories {
+			totalCount
+		}
+
+		# recently contributed repos
+		recentlyContributedTo: repositoriesContributedTo(first: 10) {
+			nodes {
+				...RepoDetails
+			}
+		}
+
+		# for stars calculations only considering top 100
+		repositories(
+			first: 100
+			ownerAffiliations: [OWNER, ORGANIZATION_MEMBER, COLLABORATOR]
+			orderBy: { direction: DESC, field: STARGAZERS }
+		) {
+			totalCount
+			nodes {
+				url
+				stargazerCount
+			}
+		}
+
+		hasSponsorsListing
+		totalSponsorshipAmountAsSponsorInCents
+		sponsors {
+			totalCount
+		}
+		sponsoring {
 			totalCount
 		}
 	} # user end
+}
+
+fragment RepoDetails on Repository {
+	url
+	stargazerCount
+	forkCount
+	primaryLanguage {
+		name
+	}
+	languages(first: 5) {
+		edges {
+			size
+			node {
+				name
+			}
+		}
+	}
 }
