@@ -65,12 +65,16 @@ def format_user_response(res):
     # top repositories user has contributed to in any way
     top_repos = []
     for repo in res["topRepositories"]["nodes"]:
+        if repo is None:
+            continue
         top_repos.append(format_repos_response(repo))
     usr["topRepositories"] = top_repos
 
     # recently contributed repos
     recent_repos = []
     for repo in res["recentlyContributedTo"]["nodes"]:
+        if repo is None:
+            continue
         recent_repos.append(format_repos_response(repo))
     usr["recentlyContributedRepositories"] = recent_repos
 

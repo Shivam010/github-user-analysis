@@ -19,7 +19,7 @@ def page_not_found(e):
 @app.errorhandler(500)
 def internal_error(e):
     print(e)
-    app.logger.error("something went wrong", e)
+    app.logger.error("handler something went wrong", e)
     return {"status_code": 500, "error": "500 - something went wrong"}, 500
 
 
@@ -47,7 +47,7 @@ def fetch_github_user_data_route():
         return resp, resp["statusCode"], {"Cache-Control": "public"}
 
     except Exception as err:
-        print("something went wrong", err)
+        print("exception something went wrong", err)
         return {
             "statusCode": 500,
             "error": "500: Internal Server Error",
