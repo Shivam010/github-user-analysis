@@ -14,7 +14,9 @@ But on using an efficient [Graphql query](./query.gql), we can obtained all the 
 
 Add your `GITHUB_ACCESS_TOKEN` in environment variable or in the `.env` file
 
-Run `functions-framework-python --target=fetch_github_data --debug` and visit `http://127.0.0.1:8080/?username=<username>` replace `<username>`.
+Run `gunicorn -w=4 main:app -b=0.0.0.0:8000` and visit `http://127.0.0.1:8000/fetch?username=<username>` replace `<username>`.
+
+With `-w=4` we are spanning 4 python processes in the gunicorn server
 
 A truncated output of my username is provided below:
 
@@ -135,3 +137,26 @@ A truncated output of my username is provided below:
 	"statusCode": 200
 }
 ```
+
+## Hosting
+You can test it out on => https://gua.shivam010.in/fetch?username=<username>
+
+The program is dockerize and it runs `gunicorn` http server to serve the program.
+
+The current deployment is deployed at 1 shared CPU and 256MB of RAM.
+
+Load tested it at 1000 across 50 users -> with around 3% of CPU and 50% of RAM (negligible increment here too) <br/>
+
+```
+Time per request:       10649.718 [ms] (mean)
+Time per request:       212.994 [ms] (mean, across all concurrent requests)
+```
+
+- p99 = 12s
+- p95 = 10s
+- p50 = 5.5s
+- avg = 4s
+
+> _50% memory is because of the image is `python:3.10.4-slim-bullseye` it's memory utilisation will be ~140MiB._
+
+## Resource
