@@ -159,4 +159,3 @@ Time per request:       212.994 [ms] (mean, across all concurrent requests)
 
 > _50% memory is because of the image is `python:3.10.4-slim-bullseye` it's memory utilisation will be ~140MiB._
 
-## Resource

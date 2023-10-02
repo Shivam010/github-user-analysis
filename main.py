@@ -23,6 +23,15 @@ def internal_error(e):
     return {"status_code": 500, "error": "500 - something went wrong"}, 500
 
 
+@app.route("/")
+def home_route():
+    return {
+        "status_code": 200,
+        "message": "Hello 👋, Welcome to GUA!",
+        "url": "https://github.com/Shivam010/github-user-analysis",
+    }, 200
+
+
 @app.route("/fetch")
 def fetch_github_user_data_route():
     try:
