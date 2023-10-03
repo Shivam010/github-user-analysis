@@ -4,8 +4,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from flask import Flask, request
-from github.fetch_stats import fetch_user_data
-import github.utils as utils
+import internal.utils as utils
+from internal.fetch_stats import fetch_user_data
 import os
 
 
