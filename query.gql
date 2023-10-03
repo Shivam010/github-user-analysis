@@ -107,7 +107,7 @@ query ($username: String!) {
 		# for stars calculations only considering top 100
 		repositories(
 			first: 100
-			ownerAffiliations: [OWNER, ORGANIZATION_MEMBER, COLLABORATOR]
+			ownerAffiliations: [OWNER, COLLABORATOR]
 			orderBy: { direction: DESC, field: STARGAZERS }
 		) {
 			totalCount

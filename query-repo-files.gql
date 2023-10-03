@@ -1,0 +1,61 @@
+query ($owner: String!, $repo: String!) {
+	rateLimit {
+		cost
+		limit
+		nodeCount
+		remaining
+		resetAt
+		used
+	}
+
+	repository(owner: $owner, name: $repo) {
+		object(expression: "HEAD:") {
+			... on Tree {
+				entries {
+					name
+					type
+					object {
+						... on Blob {
+							byteSize
+						}
+						... on Tree {
+							entries {
+								name
+								type
+								object {
+									__typename
+									... on Blob {
+										byteSize
+									}
+									... on Tree {
+										entries {
+											name
+											type
+											object {
+												... on Blob {
+													byteSize
+												}
+
+												... on Tree {
+													entries {
+														name
+														type
+														object {
+															... on Blob {
+																byteSize
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

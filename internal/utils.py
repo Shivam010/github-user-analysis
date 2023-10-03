@@ -60,11 +60,19 @@ def fetch_github_query(query: str, variables: dict):
     if "errors" in body:
         # check for gql rate limiting
         for error in body["errors"]:
-            if error.type == "RATE_LIMITED":
+            et = error["type"]
+            if et == "RATE_LIMITED":
                 return handle_rate_limiting(resp)
+            if et == "NOT_FOUND":
+                pt = error["path"]
+                if pt is not None and len(pt) > 0:
+                    return {
+                        "statusCode": 404,
+                        "error": f"{pt[0]} not found",
+                    }
 
         # for all other errors log the error
-        print("something went wrong", body["errors"])
+        print("something went wrong:", body["errors"])
 
         return {
             "statusCode": 500,
@@ -74,7 +82,9 @@ def fetch_github_query(query: str, variables: dict):
     return body
 
 
-def readData(fname: str):
+def readData(fname: str, nocache=False):
+    if nocache:
+        return None
     try:
         f = open(MOUNT_DIRECTORY + "/" + fname, "r")
         data = f.read()

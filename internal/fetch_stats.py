@@ -3,10 +3,11 @@ import json
 
 
 # Function to fetch user data
-def fetch_user_data(username: str):
-    cac = utils.readData(username)
-    if cac is not None:
-        return cac
+def fetch_user_data(username: str, nocache=False):
+    ckey = username
+    cval = utils.readData(ckey, nocache)
+    if cval is not None:
+        return cval
 
     resp = utils.fetch_github_query(
         GRAPHQL_QUERY,
@@ -24,7 +25,7 @@ def fetch_user_data(username: str):
         "statusCode": 200,
     }
 
-    utils.writeData(username, json.dumps(data))
+    utils.writeData(ckey, json.dumps(data))
     return data
 
 
@@ -92,7 +93,7 @@ def format_user_response(res):
 # Formats the github api's repos response
 def format_repos_response(res):
     repo = {
-        "url": res["url"],
+        "nameWithOwner": res["nameWithOwner"],
         "stargazerCount": res["stargazerCount"],
         "forkCount": res["forkCount"],
         "primaryLanguage": None,
@@ -248,7 +249,7 @@ query ($username: String!) {
 }
 
 fragment RepoDetails on Repository {
-	url
+	nameWithOwner
 	stargazerCount
 	forkCount
 	primaryLanguage {
