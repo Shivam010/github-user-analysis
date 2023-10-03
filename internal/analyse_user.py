@@ -2,7 +2,7 @@ import internal.utils as utils
 import internal.fetch_stats as gstats
 import internal.fetch_files as gfiles
 from internal.parse_js_file_content import parse_js_file_content, convert_to_plain_text
-import json
+import internal.openapi as openapi
 
 
 def analyse_user(username: str, query: str, nocache=False):
@@ -45,11 +45,56 @@ def analyse_user(username: str, query: str, nocache=False):
             "userStats": userStats,
         }
 
+    # now, convert all files into corresponding segments and create a plain text representation out of it
+    plainTextRepoDetails, parsedFiles = process_repo_files_to_plain_text(
+        repoOwner,
+        repoName,
+        files,
+        nocache,
+    )
+
+    prompt = (
+        f"For Repo - {repoWithOwner}, these are the extracted details of the files in the repo: \n"
+        + plainTextRepoDetails
+        + "\n\n Now, use the provided context of the repo, answer to the point the following question with reference to the repo: "
+        + query
+        + "\n\n Always, just return a brief summary on the answer. Plus, if you are not able to pin point anything just say so."
+    )
+    prompt2 = (
+        openapi.systemPrompt + "\n" + plainTextRepoDetails + "\n" + "Question: " + query
+    )
+
+    resp = {
+        "statusCode": 200,
+        "analysisedRepo": repoWithOwner,
+        "inputQuery": query,
+        "zparsedFiles": parsedFiles,
+        "prompt": prompt,
+        "prompt2": prompt2,
+        "userStats": userStats,
+    }
+    try:
+        resp["gpt3.5prediction"] = openapi.generate_response(
+            plainTextRepoDetails,
+            query,
+        )
+    except:
+        resp["gpt3.5prediction"] = {
+            "message": "error: openapi call paniced",
+            "usage": {},
+        }
+
+    return resp
+
+
+def process_repo_files_to_plain_text(
+    repoOwner: str, repoName: str, files: list, nocache=False
+):
     # now, convert each file into corresponding segments
     parsedFiles = []
 
     def parse_and_store_fnc(file, content: str):
-        print(file["name"], "started")
+        # print(file["name"], "started")
         parsedFiles.append(
             {
                 "name": file["name"],
@@ -57,32 +102,20 @@ def analyse_user(username: str, query: str, nocache=False):
                 "info": parse_js_file_content(file["name"], content),
             }
         )
-        print(file["name"], "ended")
+        # print(file["name"], "ended")
 
     # iterate over all files
     for file in files:
         iterate_files(
-            repoOwner, repoName, file, parsedFiles, parse_and_store_fnc, nocache
+            repoOwner,
+            repoName,
+            file,
+            parsedFiles,
+            parse_and_store_fnc,
+            nocache,
         )
-
-    parsedRepo = convert_to_plain_text(parsedFiles)
-    parsedRepo = (
-        f"For Repo - {repoWithOwner}, these are the extracted details of the files in the repo: \n"
-        + parsedRepo
-    )
-    prompt = (
-        parsedRepo
-        + "\n\n Now, use the provided context of the repo, answer to the point the following question with reference to the repo: "
-        + query
-        + "\n\n Always, just return a brief summary on the answer. Plus, if you are not able to pin point anything just say so."
-    )
-    return {
-        "statusCode": 200,
-        "analysisedRepo": repoWithOwner,
-        "zparsedFiles": parsedFiles,
-        "prompt": prompt,
-        "userStats": userStats,
-    }
+    plainTextRepoDetails = convert_to_plain_text(parsedFiles)
+    return plainTextRepoDetails, parsedFiles
 
 
 # iterate_files nestedly in all

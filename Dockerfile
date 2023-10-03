@@ -6,7 +6,7 @@ ENV PYTHONUNBUFFERED=1
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 ENV GITHUB_ACCESS_TOKEN=ghp_xxxxxx
 
-# Mount Directory
+ENV OPENAI_KEY=sk-xxxxxx
 ENV MOUNT_DIRECTORY=/guadata
 
 # install requirements
