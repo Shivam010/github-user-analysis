@@ -143,7 +143,7 @@ def convert_to_plain_text(data):
     result = []
 
     for file_info in data:
-        file_name = file_info.get("name", "Unknown File")
+        file_name = file_info.get("path", "Unknown File")
         result.append(f"{file_name} file contain:")
 
         info = file_info.get("info", {})

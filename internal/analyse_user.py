@@ -66,11 +66,20 @@ def analyse_user(username: str, query: str, nocache=False):
         )
 
     parsedRepo = convert_to_plain_text(parsedFiles)
-    parsedRepo = f"For Repo - {repoWithOwner} \n" + parsedRepo
-    prompt = parsedRepo + "\n" + query
+    parsedRepo = (
+        f"For Repo - {repoWithOwner}, these are the extracted details of the files in the repo: \n"
+        + parsedRepo
+    )
+    prompt = (
+        parsedRepo
+        + "\n\n Now, use the provided context of the repo, answer to the point the following question with reference to the repo: "
+        + query
+        + "\n\n Always, just return a brief summary on the answer. Plus, if you are not able to pin point anything just say so."
+    )
     return {
         "statusCode": 200,
         "analysisedRepo": repoWithOwner,
+        "zparsedFiles": parsedFiles,
         "prompt": prompt,
         "userStats": userStats,
     }
