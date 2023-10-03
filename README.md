@@ -12,8 +12,14 @@ But on using an efficient [Graphql query](./query.gql), we can obtained all the 
 
 ## Routes
 
--   `/fetch?username=<username>`: for fetching user's stats
--   `/analyze/<username>?query=<prompt>`: for analzing the top js/nodejs/ts/react repository of the user with the prompt!
+-   `https://gua.shivam010.in/fetch?username=<username>`: for fetching user's stats
+-   `https://gua.shivam010.in/analyse/<username>?query=<prompt>`: for analysing the top js/nodejs/ts/react repository of the user with the prompt!
+
+For example:
+
+-   https://gua.shivam010.in/fetch?username=Shivam010
+-   https://gua.shivam010.in/analyse/Shivam010
+-   https://gua.shivam010.in/analyse/Techie5879?query=how%20much%20code%20is%20documented
 
 ## How to run? and Sample example
 

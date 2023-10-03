@@ -1,4 +1,4 @@
-FROM python:3.10.4-slim-bullseye as builder
+FROM python:3.11.3-slim-bullseye as builder
 
 # Extra python env
 ENV PYTHONDONTWRITEBYTECODE=0
