@@ -90,12 +90,15 @@ def check_volume():
 def analyse_username(username: str):
     try:
         query = request.args.get("query")
+        if query is None:
+            query = "How is the code documented?"
+
         nocache = False
         if request.args.get("nocache"):
             nocache = True
 
         # analyze user
-        resp = analyse_user(username, nocache)
+        resp = analyse_user(username, query, nocache)
         return resp, resp["statusCode"], {"Cache-Control": "public"}
 
     except Exception as err:

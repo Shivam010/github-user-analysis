@@ -1,16 +1,16 @@
 import requests
 import datetime
-from os import getenv
+import os
 import json
 
 # MOUNT_DIRECTORY
-MOUNT_DIRECTORY = getenv("MOUNT_DIRECTORY")
+MOUNT_DIRECTORY = os.getenv("MOUNT_DIRECTORY")
 
 # GitHub GraphQL API endpoint
 GITHUB_GRAPHQL_API_ENDPOINT = "https://api.github.com/graphql"
 
 # GitHub personal access token for authentication
-GITHUB_ACCESS_TOKEN = getenv("GITHUB_ACCESS_TOKEN")
+GITHUB_ACCESS_TOKEN = os.getenv("GITHUB_ACCESS_TOKEN")
 
 
 # Handles rate limiting
@@ -82,6 +82,39 @@ def fetch_github_query(query: str, variables: dict):
     return body
 
 
+def download_github_file(
+    owner: str,
+    repo: str,
+    path: str,
+    branch="HEAD",
+    nocache=False,
+):
+    if path.startswith("/"):
+        path = path[1:]
+
+    ckey = f"files/{owner}/{repo}/{branch}/{path}"
+    cval = readData(ckey, nocache)
+    if cval is not None:
+        return cval
+
+    # GitHub raw content URL
+    url = f"https://raw.githubusercontent.com/{owner}/{repo}/{branch}/{path}"
+
+    try:
+        resp = requests.get(url)
+        if resp.status_code == 200:
+            # Return the content
+            data = resp.text
+            writeData(ckey, data)
+            return data
+
+        print(f"Error downloading file {owner}/{repo}/{path}: {resp.status_code}")
+        return None
+    except Exception as e:
+        print(f"Error downloading file {owner}/{repo}/{path}", e)
+        return None
+
+
 def readData(fname: str, nocache=False):
     if nocache:
         return None
@@ -95,12 +128,24 @@ def readData(fname: str, nocache=False):
 
 
 def writeData(fname: str, txt: str):
-    f = open(MOUNT_DIRECTORY + "/" + fname, "w")
+    filepath = MOUNT_DIRECTORY + "/" + fname
+    dirpath = os.path.dirname(filepath)
+
+    if dirpath and not os.path.exists(dirpath):
+        os.makedirs(dirpath)
+
+    f = open(filepath, "w+")
     f.write(txt)
     f.close()
 
 
 def appendData(fname: str, txt: str):
-    f = open(MOUNT_DIRECTORY + "/" + fname, "a")
+    filepath = MOUNT_DIRECTORY + "/" + fname
+    dirpath = os.path.dirname(filepath)
+
+    if dirpath and not os.path.exists(dirpath):
+        os.makedirs(dirpath)
+
+    f = open(filepath, "a")
     f.write(txt)
     f.close()

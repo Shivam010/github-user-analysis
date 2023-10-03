@@ -74,7 +74,7 @@ def parse_tree(tree, prefix="/"):
             or name.endswith(".ts")
             or name.endswith(".tsx")
             or name.endswith(".jsx")
-            or name.endswith(".json")
+            # or name.endswith(".json")
         ):
             continue
 
