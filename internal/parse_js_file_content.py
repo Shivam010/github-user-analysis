@@ -148,8 +148,6 @@ def convert_to_plain_text(data):
 
         info = file_info.get("info", {})
         for category, items in info.items():
-            if category == "comments":
-                print(items)
             if items:
                 names = ""
                 # result.append(f"{category}:")

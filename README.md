@@ -10,11 +10,16 @@ This will result in much more consumption of Github's rate limit - `5000 request
 
 But on using an efficient [Graphql query](./query.gql), we can obtained all the equivalent information in just a single call, which means the effectively, we can analyse `~5000` users per hour.
 
+## Routes
+
+-   `/fetch?username=<username>`: for fetching user's stats
+-   `/analyze/<username>?query=<prompt>`: for analzing the top js/nodejs/ts/react repository of the user with the prompt!
+
 ## How to run? and Sample example
 
 Add your `GITHUB_ACCESS_TOKEN` in environment variable or in the `.env` file
 
-Run `gunicorn -w=4 main:app -b=0.0.0.0:8000` and visit `http://127.0.0.1:8000/fetch?username=<username>` replace `<username>`.
+Run `gunicorn -w=4 main:app -b=0.0.0.0:8000`
 
 With `-w=4` we are spanning 4 python processes in the gunicorn server
 
@@ -142,7 +147,7 @@ A truncated output of my username is provided below:
 
 ```sh
 docker build -t gua .
-mkdir -p ./guadata
+mkdir -p ./guadata # for caching purposes
 docker run -it -p 8000:8000 -e GITHUB_ACCESS_TOKEN=ghp_xxxxxxxxxxxx -v ./guadata:/guadata gua
 ```
 

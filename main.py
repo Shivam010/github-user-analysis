@@ -91,7 +91,7 @@ def analyse_username(username: str):
     try:
         query = request.args.get("query")
         if query is None:
-            query = "How is the code documented?"
+            query = "How well has the user documented the codebase?"
 
         nocache = False
         if request.args.get("nocache"):
