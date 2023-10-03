@@ -13,8 +13,8 @@ ENV MOUNT_DIRECTORY=/guadata
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
-# our github package and main.py file
-COPY github github
+# our internal package and main.py file
+COPY internal internal
 COPY main.py main.py
 
 # default docker port to expose, '-p' flag is used
