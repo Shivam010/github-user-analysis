@@ -6,6 +6,9 @@ ENV PYTHONUNBUFFERED=1
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 ENV GITHUB_ACCESS_TOKEN=ghp_xxxxxx
 
+# Mount Directory
+ENV MOUNT_DIRECTORY=/guadata
+
 # install requirements
 COPY requirements.txt .
 RUN pip install -r requirements.txt

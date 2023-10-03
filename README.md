@@ -138,7 +138,16 @@ A truncated output of my username is provided below:
 }
 ```
 
+### Local Build and Run Command using docker
+
+```sh
+docker build -t gua .
+mkdir -p ./guadata
+docker run -it -p 8000:8000 -e GITHUB_ACCESS_TOKEN=ghp_xxxxxxxxxxxx -v ./guadata:/guadata gua
+```
+
 ## Hosting
+
 You can test it out on => https://gua.shivam010.in/fetch?username=<username>
 
 The program is dockerize and it runs `gunicorn` http server to serve the program.
@@ -152,10 +161,9 @@ Time per request:       10649.718 [ms] (mean)
 Time per request:       212.994 [ms] (mean, across all concurrent requests)
 ```
 
-- p99 = 12s
-- p95 = 10s
-- p50 = 5.5s
-- avg = 4s
+-   p99 = 12s
+-   p95 = 10s
+-   p50 = 5.5s
+-   avg = 4s
 
 > _50% memory is because of the image is `python:3.10.4-slim-bullseye` it's memory utilisation will be ~140MiB._
-

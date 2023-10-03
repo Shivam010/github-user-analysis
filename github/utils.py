@@ -1,11 +1,13 @@
 import requests
 import datetime
 from os import getenv
+import json
 
+# MOUNT_DIRECTORY
+MOUNT_DIRECTORY = getenv("MOUNT_DIRECTORY")
 
 # GitHub GraphQL API endpoint
 GITHUB_GRAPHQL_API_ENDPOINT = "https://api.github.com/graphql"
-
 
 # GitHub personal access token for authentication
 GITHUB_ACCESS_TOKEN = getenv("GITHUB_ACCESS_TOKEN")
@@ -70,3 +72,25 @@ def fetch_github_query(query: str, variables: dict):
         }
 
     return body
+
+
+def readData(fname: str):
+    try:
+        f = open(MOUNT_DIRECTORY + "/" + fname, "r")
+        data = f.read()
+        data = json.loads(data)
+        return data
+    except:
+        return None
+
+
+def writeData(fname: str, txt: str):
+    f = open(MOUNT_DIRECTORY + "/" + fname, "w")
+    f.write(txt)
+    f.close()
+
+
+def appendData(fname: str, txt: str):
+    f = open(MOUNT_DIRECTORY + "/" + fname, "a")
+    f.write(txt)
+    f.close()

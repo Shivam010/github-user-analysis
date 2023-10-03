@@ -5,6 +5,8 @@ load_dotenv()
 
 from flask import Flask, request
 from github.fetch_stats import fetch_user_data
+import github.utils as utils
+import os
 
 
 # Flask app
@@ -61,3 +63,12 @@ def fetch_github_user_data_route():
             "statusCode": 500,
             "error": "500: Internal Server Error",
         }, 500
+
+
+@app.route("/check")
+def check_volume():
+    dir = utils.MOUNT_DIRECTORY
+    res = os.listdir(dir)
+    return {
+        "list": res,
+    }, 200

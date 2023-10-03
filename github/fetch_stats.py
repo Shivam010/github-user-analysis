@@ -1,9 +1,14 @@
-from github.utils import fetch_github_query
+import github.utils as utils
+import json
 
 
 # Function to fetch user data
 def fetch_user_data(username: str):
-    resp = fetch_github_query(
+    cac = utils.readData(username)
+    if cac is not None:
+        return cac
+
+    resp = utils.fetch_github_query(
         GRAPHQL_QUERY,
         {
             "username": username.strip(),
@@ -14,10 +19,13 @@ def fetch_user_data(username: str):
 
     usr = resp["data"]["user"]
     usr = format_user_response(usr)
-    return {
+    data = {
         "data": usr,
         "statusCode": 200,
     }
+
+    utils.writeData(username, json.dumps(data))
+    return data
 
 
 # Formats the github api response, based on the graphql query
