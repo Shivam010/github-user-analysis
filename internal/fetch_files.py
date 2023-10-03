@@ -9,6 +9,8 @@ def find_js_repo(repos):
         return None
 
     for repo in repos:
+        if repo["nameWithOwner"].endswith("-fork"):
+            continue
         # check primary lang
         if repo["primaryLanguage"] is not None:
             name = repo["primaryLanguage"]["name"]

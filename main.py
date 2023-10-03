@@ -66,7 +66,7 @@ def fetch_github_user_data_route():
                 "error": "Username not provided in the request body",
             }, 400
 
-        resp = fetch_user_data(username)
+        resp = fetch_user_data(username, nocache)
         return resp, resp["statusCode"], {"Cache-Control": "public"}
 
     except Exception as err:

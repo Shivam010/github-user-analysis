@@ -1,7 +1,7 @@
 import internal.utils as utils
 import internal.fetch_stats as gstats
 import internal.fetch_files as gfiles
-from internal.parse_js_file_content import parse_js_file_content
+from internal.parse_js_file_content import parse_js_file_content, convert_to_plain_text
 import json
 
 
@@ -61,25 +61,40 @@ def analyse_user(username: str, query: str, nocache=False):
 
     # iterate over all files
     for file in files:
-        iterate_files(repoOwner, repoName, file, parse_and_store_fnc, nocache)
+        iterate_files(
+            repoOwner, repoName, file, parsedFiles, parse_and_store_fnc, nocache
+        )
 
+    parsedRepo = convert_to_plain_text(parsedFiles)
+    parsedRepo = f"For Repo - {repoWithOwner} \n" + parsedRepo
+    prompt = parsedRepo + "\n" + query
     return {
         "statusCode": 200,
         "analysisedRepo": repoWithOwner,
-        "files": parsedFiles,
+        "prompt": prompt,
         "userStats": userStats,
     }
 
 
 # iterate_files nestedly in all
-def iterate_files(owner: str, repo: str, cur_file, parse_and_store_fnc, nocache=False):
+def iterate_files(
+    owner: str,
+    repo: str,
+    cur_file,
+    parsedFiles,
+    parse_and_store_fnc,
+    nocache=False,
+):
     if cur_file is None:
+        return
+
+    if len(parsedFiles) >= 100:
         return
 
     if "files" in cur_file:
         # it's directory then
         for file in cur_file["files"]:
-            iterate_files(owner, repo, file, parse_and_store_fnc, nocache)
+            iterate_files(owner, repo, file, parsedFiles, parse_and_store_fnc, nocache)
         return
 
     content = utils.download_github_file(

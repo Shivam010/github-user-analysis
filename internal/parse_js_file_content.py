@@ -137,3 +137,26 @@ def parse_js_file_content(fname: str, content: str):
                     information["components"].append(cls)
 
     return information
+
+
+def convert_to_plain_text(data):
+    result = []
+
+    for file_info in data:
+        file_name = file_info.get("name", "Unknown File")
+        result.append(f"{file_name} file contain:")
+
+        info = file_info.get("info", {})
+        for category, items in info.items():
+            if items:
+                names = ""
+                # result.append(f"{category}:")
+                for item in items:
+                    line_number = item.get("line_number", "")
+                    name = item.get("name", "")
+                    if name and line_number:
+                        names += f"{name} at line {line_number}, "
+                if names and len(names) > 1:
+                    result.append(f"  {category}: {names[:len(names)-2]}")
+
+    return "\n".join(result)
