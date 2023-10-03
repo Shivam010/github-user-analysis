@@ -24,7 +24,7 @@ def parse_js_file_content(fname: str, content: str):
         if comments_match:
             information["comments"].extend(
                 [
-                    {"text": c[0] if c[0] else c[1], "line_number": line_number}
+                    {"name": c[0] if c[0] else c[1], "line_number": line_number}
                     for c in comments_match
                 ]
             )
@@ -148,6 +148,8 @@ def convert_to_plain_text(data):
 
         info = file_info.get("info", {})
         for category, items in info.items():
+            if category == "comments":
+                print(items)
             if items:
                 names = ""
                 # result.append(f"{category}:")
